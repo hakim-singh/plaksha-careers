@@ -6,26 +6,27 @@ use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+/**
+ * Class AdminJobController
+ *
+ * Controller to manage job postings in the admin panel.
+ *
+ * @package App\Http\Controllers
+ */
 class AdminJobController extends Controller
 {
     /**
-     * Display all jobs (admin listing)
+     * Display a listing of jobs with stats.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
-        // Get all jobs paginated (for table)
         $jobs = Job::paginate(10);
-
-        // Calculate total jobs count
         $totalJobs = Job::count();
-
-        // Calculate open jobs count
         $openJobs = Job::where('status', 'open')->count();
-
-        // Calculate closed jobs count
         $closedJobs = Job::where('status', 'closed')->count();
 
-        // Pass all data to the view
         return view('admin.jobs.index', [
             'jobs' => $jobs,
             'totalJobs' => $totalJobs,
@@ -35,7 +36,9 @@ class AdminJobController extends Controller
     }
 
     /**
-     * Show job creation form
+     * Show the form to create a new job posting.
+     *
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -43,66 +46,87 @@ class AdminJobController extends Controller
     }
 
     /**
-     * Store new job
+     * Store a newly created job in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'location' => 'required|string|max:255',
-        'department' => 'required|string|max:255',
-        'employment_type' => 'required|string|max:255',
-        'status' => 'required|in:open,closed',
-        'description' => 'required|string',
-        'responsibilities' => 'required|string',
-        'requirements' => 'required|string',
-        'how_to_apply' => 'nullable|string',
-    ]);
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'department' => 'required|string|max:255',
+            'employment_type' => 'required|string|max:255',
+            'status' => 'required|in:open,closed',
+            'description' => 'required|string',
+            'responsibilities' => 'required|string',
+            'requirements' => 'required|string',
+            'how_to_apply' => 'nullable|string',
+        ]);
 
-    // Generate slug from title
-    $validated['slug'] = Str::slug($validated['title']);
-
-    Job::create($validated);
-    return redirect()->back()->with('success', 'Form submitted successfully!');
-
-    // return redirect()->route('admin.jobs.index')
-    //                 ->with('success', 'Job created successfully!');
-}
-public function edit(Job $job)
-{
-    return view('admin.jobs.edit', compact('job'));
-}
-public function update(Request $request, Job $job)
-{
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'location' => 'required|string|max:255',
-        'department' => 'required|string|max:255',
-        'employment_type' => 'required|string|max:255',
-        'status' => 'required|in:open,closed',
-        'description' => 'required|string',
-        'responsibilities' => 'required|string',
-        'requirements' => 'required|string',
-        'how_to_apply' => 'nullable|string',
-    ]);
-
-    // Update slug only if title changed
-    if ($job->title !== $validated['title']) {
         $validated['slug'] = Str::slug($validated['title']);
+        Job::create($validated);
+
+        return redirect()->back()->with('success', 'Form submitted successfully!');
     }
 
-    $job->update($validated);
+    /**
+     * Show the form for editing the specified job.
+     *
+     * @param \App\Models\Job $job
+     * @return \Illuminate\View\View
+     */
+    public function edit(Job $job)
+    {
+        return view('admin.jobs.edit', compact('job'));
+    }
 
-    return redirect()->back()->with('success', 'Record updated successfully!');
-}
+    /**
+     * Update the specified job in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Job $job
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function update(Request $request, Job $job)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'department' => 'required|string|max:255',
+            'employment_type' => 'required|string|max:255',
+            'status' => 'required|in:open,closed',
+            'description' => 'required|string',
+            'responsibilities' => 'required|string',
+            'requirements' => 'required|string',
+            'how_to_apply' => 'nullable|string',
+        ]);
 
-public function destroy(Job $job)
-{
-    $job->delete();
+        if ($job->title !== $validated['title']) {
+            $validated['slug'] = Str::slug($validated['title']);
+        }
 
-    return redirect()->route('admin.jobs.index')
-                    ->with('success', 'Job deleted successfully!');
-}
+        $job->update($validated);
+        return redirect()->back()->with('success', 'Record updated successfully!');
+    }
+
+    /**
+     * Remove the specified job from storage.
+     *
+     * @param \App\Models\Job $job
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Job $job)
+    {
+        $job->delete();
+        return redirect()->route('admin.jobs.index')
+            ->with('success', 'Job deleted successfully!');
+    }
 }

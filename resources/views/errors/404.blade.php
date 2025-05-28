@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Page Not Found')
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-50">

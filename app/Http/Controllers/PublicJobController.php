@@ -5,10 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use Illuminate\Http\Request;
 
+/**
+ * Class PublicJobController
+ *
+ * Handles public-facing job listings and job detail views.
+ *
+ * @package App\Http\Controllers
+ */
 class PublicJobController extends Controller
 {
     /**
-     * Display all open jobs (homepage)
+     * Display a listing of all open jobs on the homepage.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -20,7 +29,10 @@ class PublicJobController extends Controller
     }
 
     /**
-     * Display single job details
+     * Display the specified job's detailed information.
+     *
+     * @param \App\Models\Job $job
+     * @return \Illuminate\View\View
      */
     public function show(Job $job)
     {
